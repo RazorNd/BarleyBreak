@@ -45,8 +45,7 @@ const TagBoard &FinderTagGame::NodeTag::getTagBoard() const
 
 int FinderTagGame::NodeTag::operator()() const
 {    
-    return _length + _board.getDistanceToVictory();
-    //return _board.getDistanceToVictory();
+    return _length + _board.getDistanceToVictory();    
 }
 
 bool FinderTagGame::NodeTag::operator <(const FinderTagGame::NodeTag &tag) const
@@ -67,7 +66,7 @@ bool FinderTagGame::NodeTag::operator <=(const FinderTagGame::NodeTag &tag) cons
         return true;
     if(this->getDistanceToVicktory() == tag.getDistanceToVicktory())
         return this->_length <= tag._length;
-
+    return false;
 }
 
 void FinderTagGame::addNodeInPull(FinderTagGame::NodeTag *node)
@@ -113,6 +112,9 @@ FinderTagGame::~FinderTagGame()
 
 std::list<TagBoard::Move> FinderTagGame::getMoveList()
 {
+    if(_nodes.empty())
+        return std::list<TagBoard::Move>();
+
     bool endsSearch = false;
     const NodeTag *nodeAnswer;
 
@@ -122,22 +124,20 @@ std::list<TagBoard::Move> FinderTagGame::getMoveList()
         Nodes::iterator it = _nodes.begin();
         NodeTag *node = it->node();
 
-        _nodes.erase(it);
+        _nodes.erase(it);       
 
-        if(minDistanceToVicktory > node->getDistanceToVicktory() || minDistanceToVicktory <= 3)
+        if(minDistanceToVicktory > node->getDistanceToVicktory())
         {
             minDistanceToVicktory = node->getDistanceToVicktory();
             std::cout << "The objective function: " << (*node)()
                       << " Nodes count: " << _nodes.size() << std::endl
                       << node->getTagBoard() << std::endl;
-        }
-//        std::cout << "Min distance to victory " << minDistanceToVicktory
-//                  << " Distance to vickory: " << node->getDistanceToVicktory()
-//                  << " Nodes count: " << _nodes.size() << std::endl;
+        }        
 
         for(int i = 0; i < 4; i++)
         {
-            if(node->isCorrectMove((TagBoard::Move)i) && (TagBoard::Move)i != node->getMove())
+            TagBoard::Move move = (TagBoard::Move)i;
+            if(node->isCorrectMove(move) && !TagBoard::isTurnBack(move, node->getMove()))
             {
                 NodeTag &newNode = createNode(node, (TagBoard::Move)i);
                 if(!newNode.getDistanceToVicktory())

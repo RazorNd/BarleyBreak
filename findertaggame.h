@@ -10,7 +10,7 @@ class FinderTagGame
 {
     class NodeTag;
     class LinkNodeTag;
-    typedef std::set<LinkNodeTag, std::less_equal<LinkNodeTag> > Nodes;
+    typedef std::multiset<LinkNodeTag, std::less_equal<LinkNodeTag> > Nodes;
     typedef std::list<NodeTag*> NodesPool;
     Nodes _nodes;
     NodesPool _pool;

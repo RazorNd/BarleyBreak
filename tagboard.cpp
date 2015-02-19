@@ -200,6 +200,28 @@ bool TagBoard::operator !=(const TagBoard &tag)
     return !((*this) == tag);
 }
 
+bool TagBoard::isTurnBack(TagBoard::Move a, TagBoard::Move b)
+{
+    switch (a) {
+    case left:
+        if(b == right)
+            return true;
+        break;
+    case right:
+        if(b == left)
+            return true;
+        break;
+    case top:
+        if(b == bottom)
+            return true;
+        break;
+    case bottom:
+        if(b == top)
+            return true;
+    }
+    return false;
+}
+
 std::istream &operator >>(std::istream &in, TagBoard &tag)
 {
     std::size_t size;

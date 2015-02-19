@@ -40,6 +40,8 @@ public:
     bool operator == (const TagBoard& tag);
     bool operator != (const TagBoard& tag);
 
+    static bool isTurnBack(Move a, Move b);
+
     friend std::ostream& operator << (std::ostream &out, const TagBoard& tag);
     friend std::istream &operator >> (std::istream &in, TagBoard& tag);
 };

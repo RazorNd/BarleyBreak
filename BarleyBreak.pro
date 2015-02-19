@@ -12,5 +12,6 @@ HEADERS += \
     findertaggame.h
 
 OTHER_FILES += \
-    input.txt
+    input.txt \
+    output.txt
 

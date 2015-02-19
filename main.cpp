@@ -23,22 +23,24 @@ int main()
         FinderTagGame finder(fin);
         std::list<TagBoard::Move> res = finder.getMoveList();
 
+        ofstream fout("output.txt");
+
         for(std::list<TagBoard::Move>::iterator it = res.begin();
             it != res.end(); it++)
         {
             switch(*it)
             {
             case TagBoard::left:
-                cout << "Left" << endl;
+                fout << "Left" << endl;
                 break;
             case TagBoard::right:
-                cout << "Right" << endl;
+                fout << "Right" << endl;
                 break;
             case TagBoard::top:
-                cout << "Top" << endl;
+                fout << "Top" << endl;
                 break;
             case TagBoard::bottom:
-                cout << "Bottom" << endl;
+                fout << "Bottom" << endl;
                 break;
             }
         }
