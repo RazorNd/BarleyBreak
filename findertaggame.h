@@ -5,23 +5,34 @@
 #include <set>
 #include <list>
 #include <istream>
+#include <ostream>
 
 class FinderTagGame
 {
+public:
+    typedef std::list<TagBoard::Move> TagMoveList;
+    typedef std::list<TagBoard> TagBoardList;
+private:
     class NodeTag;
     class LinkNodeTag;
     typedef std::multiset<LinkNodeTag, std::less_equal<LinkNodeTag> > Nodes;
-    typedef std::list<NodeTag*> NodesPool;
+    typedef std::list<NodeTag*> NodesPool;    
     Nodes _nodes;
     NodesPool _pool;
+    const NodeTag *_nodeAnswer;
 
     void addNodeInPull(NodeTag* node);
     NodeTag& createNode(const NodeTag* parent, TagBoard::Move move);
     void createNode(const TagBoard &tag);
+    const NodeTag *makeDecisionTree();
 public:
     FinderTagGame(std::istream &input);
+    FinderTagGame(const TagBoard &initialTag);
     ~FinderTagGame();
-    std::list<TagBoard::Move> getMoveList();
+    TagMoveList getMoveList();
+    TagBoardList getTagBoardList();
+
+    friend std::ostream &operator << (std::ostream &out, const NodeTag& node);
 };
 
 class FinderTagGame::LinkNodeTag
@@ -55,5 +66,7 @@ public:
     bool operator < (const NodeTag& tag) const;
     bool operator <= (const NodeTag& tag) const;
 };
+
+std::ostream &operator << (std::ostream &out, const FinderTagGame::NodeTag& node);
 
 #endif // FINDERTAGGAME_H

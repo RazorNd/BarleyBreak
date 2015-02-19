@@ -1,15 +1,13 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
-#include <tagboard.h>
-#include <set>
+#include "tagboard.h"
 #include "findertaggame.h"
 
 using namespace std;
 
 int main()
-{
-    multiset<int> intSet();
+{   
     try
     {
         ifstream fin("input.txt");
@@ -20,29 +18,13 @@ int main()
             return 3;
         }
 
-        FinderTagGame finder(fin);
-        std::list<TagBoard::Move> res = finder.getMoveList();
+        FinderTagGame finder(fin);        
+        FinderTagGame::TagBoardList boards = finder.getTagBoardList();
 
-        ofstream fout("output.txt");
-
-        for(std::list<TagBoard::Move>::iterator it = res.begin();
-            it != res.end(); it++)
+        for(FinderTagGame::TagBoardList::iterator it = boards.begin();
+            it != boards.end(); it++)
         {
-            switch(*it)
-            {
-            case TagBoard::left:
-                fout << "Left" << endl;
-                break;
-            case TagBoard::right:
-                fout << "Right" << endl;
-                break;
-            case TagBoard::top:
-                fout << "Top" << endl;
-                break;
-            case TagBoard::bottom:
-                fout << "Bottom" << endl;
-                break;
-            }
+            cout << *it <<endl;
         }
     }
     catch (const std::logic_error& e)

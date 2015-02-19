@@ -1,5 +1,4 @@
 #include "findertaggame.h"
-#include <iostream>
 
 
 FinderTagGame::NodeTag::NodeTag(const TagBoard &tag):
@@ -50,7 +49,6 @@ int FinderTagGame::NodeTag::operator()() const
 
 bool FinderTagGame::NodeTag::operator <(const FinderTagGame::NodeTag &tag) const
 {
-
     if((*this)() < tag())
         return true;
     if((*this)() == tag())
@@ -67,6 +65,13 @@ bool FinderTagGame::NodeTag::operator <=(const FinderTagGame::NodeTag &tag) cons
     if(this->getDistanceToVicktory() == tag.getDistanceToVicktory())
         return this->_length <= tag._length;
     return false;
+}
+
+std::ostream &operator <<(std::ostream &out, const FinderTagGame::NodeTag &node)
+{
+    out << "The objective function: " << node() << std::endl
+        << node.getTagBoard() << node.getMove() << std::endl;
+    return out;
 }
 
 void FinderTagGame::addNodeInPull(FinderTagGame::NodeTag *node)
@@ -89,6 +94,33 @@ void FinderTagGame::createNode(const TagBoard &tag)
     addNodeInPull(node);
 }
 
+const FinderTagGame::NodeTag *FinderTagGame::makeDecisionTree()
+{
+    const NodeTag *nodeAnswer = 0;
+
+    while(!_nodes.empty() && !nodeAnswer)
+    {
+        Nodes::iterator it = _nodes.begin();
+        NodeTag *node = it->node();
+
+        _nodes.erase(it);
+        for(int i = 0; i < 4; i++)
+        {
+            TagBoard::Move move = (TagBoard::Move)i;
+            if(node->isCorrectMove(move) && !TagBoard::isTurnBack(move, node->getMove()))
+            {
+                NodeTag &newNode = createNode(node, (TagBoard::Move)i);
+                if(!newNode.getDistanceToVicktory())
+                {
+                    nodeAnswer = &newNode;
+                    break;
+                }
+            }
+        }
+    }
+    return nodeAnswer;
+}
+
 FinderTagGame::FinderTagGame(std::istream &input)
 {
     TagBoard initialTag;
@@ -96,10 +128,16 @@ FinderTagGame::FinderTagGame(std::istream &input)
 
     if(initialTag.isSolutionExists())
         createNode(initialTag);
-    else
-    {
-        std::cout << "No Solution";
-    }
+
+    _nodeAnswer = makeDecisionTree();
+}
+
+FinderTagGame::FinderTagGame(const TagBoard &initialTag)
+{
+    if(initialTag.isSolutionExists())
+        createNode(initialTag);
+
+    _nodeAnswer = makeDecisionTree();
 }
 
 FinderTagGame::~FinderTagGame()
@@ -110,51 +148,34 @@ FinderTagGame::~FinderTagGame()
     }
 }
 
-std::list<TagBoard::Move> FinderTagGame::getMoveList()
+FinderTagGame::TagMoveList FinderTagGame::getMoveList()
 {
-    if(_nodes.empty())
-        return std::list<TagBoard::Move>();
+    if(!_nodeAnswer)
+        return TagMoveList();
 
-    bool endsSearch = false;
-    const NodeTag *nodeAnswer;
+    const NodeTag *node = _nodeAnswer;
 
-    int minDistanceToVicktory = 1000000;
-    while(!_nodes.empty() && !endsSearch)
+    TagMoveList result;
+    while(node->getParent())
     {
-        Nodes::iterator it = _nodes.begin();
-        NodeTag *node = it->node();
-
-        _nodes.erase(it);       
-
-        if(minDistanceToVicktory > node->getDistanceToVicktory())
-        {
-            minDistanceToVicktory = node->getDistanceToVicktory();
-            std::cout << "The objective function: " << (*node)()
-                      << " Nodes count: " << _nodes.size() << std::endl
-                      << node->getTagBoard() << std::endl;
-        }        
-
-        for(int i = 0; i < 4; i++)
-        {
-            TagBoard::Move move = (TagBoard::Move)i;
-            if(node->isCorrectMove(move) && !TagBoard::isTurnBack(move, node->getMove()))
-            {
-                NodeTag &newNode = createNode(node, (TagBoard::Move)i);
-                if(!newNode.getDistanceToVicktory())
-                {
-                    endsSearch = true;
-                    nodeAnswer = &newNode;
-                    break;
-                }
-            }
-        }
+        result.push_front(node->getMove());
+        node = node->getParent();
     }
+    return result;
+}
 
-    std::list<TagBoard::Move> result;
-    while(nodeAnswer->getParent())
+FinderTagGame::TagBoardList FinderTagGame::getTagBoardList()
+{
+    if(!_nodeAnswer)
+        return TagBoardList();
+
+    const NodeTag *node = _nodeAnswer;
+
+    TagBoardList result;
+    while(node->getParent())
     {
-        result.push_front(nodeAnswer->getMove());
-        nodeAnswer = nodeAnswer->getParent();
+        result.push_front(node->getTagBoard());
+        node = node->getParent();
     }
     return result;
 }

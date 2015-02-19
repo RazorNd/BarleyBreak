@@ -46,4 +46,6 @@ public:
     friend std::istream &operator >> (std::istream &in, TagBoard& tag);
 };
 
+std::ostream &operator<<(std::ostream &out, const TagBoard::Move& move);
+
 #endif // TAGBOARD_H

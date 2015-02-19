@@ -282,3 +282,24 @@ std::ostream &operator<<(std::ostream &out, const TagBoard& tag)
     out << "Distance to victory is: " << tag.getDistanceToVictory() << std::endl;
     return out;
 }
+
+
+std::ostream &operator<<(std::ostream &out, const TagBoard::Move& move)
+{
+    switch(move)
+    {
+    case TagBoard::left:
+        out << "Move::Left";
+        break;
+    case TagBoard::right:
+        out << "Move::Right";
+        break;
+    case TagBoard::top:
+        out << "Move::Top";
+        break;
+    case TagBoard::bottom:
+        out << "Move::Bottom";
+        break;
+    }
+    return out;
+}
