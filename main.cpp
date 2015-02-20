@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
+#include <ctime>
 #include "tagboard.h"
 #include "findertaggame.h"
 
@@ -18,14 +19,26 @@ int main()
             return 3;
         }
 
-        FinderTagGame finder(fin);        
-        FinderTagGame::TagBoardList boards = finder.getTagBoardList();
+        TagBoard tag;
 
-        for(FinderTagGame::TagBoardList::iterator it = boards.begin();
-            it != boards.end(); it++)
+        fin >> tag;
+
+        std::time_t beginTime = std::time(0);
+
+        FinderTagGame finder(tag);
+        FinderTagGame::TagMoveList moves = finder.getMoveList();
+
+        std::time_t endTime = std::time(0);
+
+        for(FinderTagGame::TagMoveList::iterator it = moves.begin();
+            it != moves.end(); it++)
         {
             cout << *it <<endl;
         }
+
+        cout << "Moves count: " << moves.size() <<endl;
+
+        cout << "elapsed time: " << endTime - beginTime;
     }
     catch (const std::logic_error& e)
     {

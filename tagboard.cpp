@@ -130,9 +130,11 @@ bool TagBoard::isSolutionExists() const
         }
     }
 
-    for (size_t i = 0; i < _board.size(); ++i)
-        if (_board[i] == 0)
-            inv += 1 + i / 4;
+    if(!(_size & 1))
+    {
+        inv += _emptyCellPos.first * _size + _emptyCellPos.second;
+    }
+
 
     return ((inv & 1) ? false : true);
 }
