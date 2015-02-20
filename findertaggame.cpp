@@ -164,22 +164,6 @@ FinderTagGame::TagMoveList FinderTagGame::getMoveList()
     return result;
 }
 
-FinderTagGame::TagBoardList FinderTagGame::getTagBoardList()
-{
-    if(!_nodeAnswer)
-        return TagBoardList();
-
-    const NodeTag *node = _nodeAnswer;
-
-    TagBoardList result;
-    while(node->getParent())
-    {
-        result.push_front(node->getTagBoard());
-        node = node->getParent();
-    }
-    return result;
-}
-
 FinderTagGame::LinkNodeTag::LinkNodeTag(NodeTag *obj):
     _link(obj)
 {

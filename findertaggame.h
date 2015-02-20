@@ -29,8 +29,7 @@ public:
     FinderTagGame(std::istream &input);
     FinderTagGame(const TagBoard &initialTag);
     ~FinderTagGame();
-    TagMoveList getMoveList();
-    TagBoardList getTagBoardList();
+    TagMoveList getMoveList();    
 
     friend std::ostream &operator << (std::ostream &out, const NodeTag& node);
 };
