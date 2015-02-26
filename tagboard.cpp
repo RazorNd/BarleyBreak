@@ -117,8 +117,6 @@ bool TagBoard::isCorrectMove(TagBoard::Move move) const
     return false;
 }
 
-#include <iostream>
-
 bool TagBoard::isSolutionExists() const
 {
     int inv = 0;
