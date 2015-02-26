@@ -117,6 +117,8 @@ bool TagBoard::isCorrectMove(TagBoard::Move move) const
     return false;
 }
 
+#include <iostream>
+
 bool TagBoard::isSolutionExists() const
 {
     int inv = 0;
@@ -130,11 +132,11 @@ bool TagBoard::isSolutionExists() const
         }
     }
 
+
     if(!(_size & 1))
     {
-        inv += _emptyCellPos.first * _size + _emptyCellPos.second;
+        inv += _emptyCellPos.first + 1;
     }
-
 
     return ((inv & 1) ? false : true);
 }
@@ -265,7 +267,6 @@ std::ostream &operator<<(std::ostream &out, const TagBoard& tag)
 {
     const std::size_t size = tag._size;
 
-    //out << "Size is: " << size << std::endl;
 
     for(std::size_t i = 0; i < size; i++)
     {
