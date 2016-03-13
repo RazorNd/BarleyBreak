@@ -114,8 +114,6 @@ const FinderTagGame::NodeTag *FinderTagGame::makeDecisionTree()
     {
         Nodes::iterator it = _nodes.begin();
         const NodeTag &node = it->node();
-        std::cout << _pool.poolSize() << std::endl;
-
         _nodes.erase(it);
         for(int i = 0; i < 4; i++)
         {
