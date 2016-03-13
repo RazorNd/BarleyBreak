@@ -1,8 +1,9 @@
 #include "findertaggame.h"
-
+#include <unordered_set>
+#include <iostream>
 
 FinderTagGame::NodeTag::NodeTag(const TagBoard &tag):
-    _parent(0), _length(0)
+    _parent(0), _length(0), _move(TagBoard::notCorrect)
 {
     _board = tag;
 }
@@ -42,6 +43,11 @@ const TagBoard &FinderTagGame::NodeTag::getTagBoard() const
     return _board;
 }
 
+int FinderTagGame::NodeTag::length() const
+{
+    return _length;
+}
+
 int FinderTagGame::NodeTag::operator()() const
 {    
     return _length + _board.getDistanceToVictory();    
@@ -67,6 +73,11 @@ bool FinderTagGame::NodeTag::operator <=(const FinderTagGame::NodeTag &tag) cons
     return false;
 }
 
+bool FinderTagGame::NodeTag::operator ==(const FinderTagGame::NodeTag &tag) const
+{
+    return getTagBoard() == tag.getTagBoard();
+}
+
 std::ostream &operator <<(std::ostream &out, const FinderTagGame::NodeTag &node)
 {
     out << "The objective function: " << node() << std::endl
@@ -74,24 +85,25 @@ std::ostream &operator <<(std::ostream &out, const FinderTagGame::NodeTag &node)
     return out;
 }
 
-void FinderTagGame::addNodeInPull(FinderTagGame::NodeTag *node)
+void FinderTagGame::addPointerInQueue(const FinderTagGame::NodeTag &node)
 {
-    LinkNodeTag link(node);
-    _pool.push_back(node);
+    NodeTagPtr link(node);
     _nodes.insert(link);
 }
 
-FinderTagGame::NodeTag &FinderTagGame::createNode(const FinderTagGame::NodeTag *parent, TagBoard::Move move)
+const FinderTagGame::NodeTag &FinderTagGame::createNode(const FinderTagGame::NodeTag &parent, TagBoard::Move move)
 {
-    NodeTag *node = new NodeTag(parent, move);
-    addNodeInPull(node);
-    return *node;
+    const NodeTag &node = _pool.get(&parent, move);
+    if(parent.length() + 1 == node.length()) {
+        addPointerInQueue(node);
+    }
+    return node;
 }
 
 void FinderTagGame::createNode(const TagBoard &tag)
 {
-    NodeTag* node = new NodeTag(tag);
-    addNodeInPull(node);
+    const NodeTag &node = _pool.get(tag);
+    addPointerInQueue(node);
 }
 
 const FinderTagGame::NodeTag *FinderTagGame::makeDecisionTree()
@@ -101,15 +113,14 @@ const FinderTagGame::NodeTag *FinderTagGame::makeDecisionTree()
     while(!_nodes.empty() && !nodeAnswer)
     {
         Nodes::iterator it = _nodes.begin();
-        NodeTag *node = it->node();
-
+        const NodeTag &node = it->node();
         _nodes.erase(it);
         for(int i = 0; i < 4; i++)
         {
             TagBoard::Move move = (TagBoard::Move)i;
-            if(node->isCorrectMove(move) && !TagBoard::isTurnBack(move, node->getMove()))
+            if(node.isCorrectMove(move) && !TagBoard::isTurnBack(move, node.getMove()))
             {
-                NodeTag &newNode = createNode(node, (TagBoard::Move)i);
+                const NodeTag &newNode = createNode(node, (TagBoard::Move)i);
                 if(!newNode.getDistanceToVicktory())
                 {
                     nodeAnswer = &newNode;
@@ -140,14 +151,6 @@ FinderTagGame::FinderTagGame(const TagBoard &initialTag)
     _nodeAnswer = makeDecisionTree();
 }
 
-FinderTagGame::~FinderTagGame()
-{
-    for(NodesPool::iterator it = _pool.begin(); it != _pool.end(); it++)
-    {
-        delete (*it);
-    }
-}
-
 FinderTagGame::TagMoveList FinderTagGame::getMoveList()
 {
     if(!_nodeAnswer)
@@ -164,22 +167,49 @@ FinderTagGame::TagMoveList FinderTagGame::getMoveList()
     return result;
 }
 
-FinderTagGame::LinkNodeTag::LinkNodeTag(NodeTag *obj):
+FinderTagGame::NodeTagPtr::NodeTagPtr(const NodeTag &obj):
     _link(obj)
 {
 }
 
-FinderTagGame::NodeTag *FinderTagGame::LinkNodeTag::node() const
+const FinderTagGame::NodeTag &FinderTagGame::NodeTagPtr::node() const
 {
     return _link;
 }
 
-bool FinderTagGame::LinkNodeTag::operator <(const LinkNodeTag &a) const
+bool FinderTagGame::NodeTagPtr::operator <(const NodeTagPtr &a) const
 {
-    return (*_link) < (*a._link);
+    return _link < a._link;
 }
 
-bool FinderTagGame::LinkNodeTag::operator <=(const FinderTagGame::LinkNodeTag &a) const
+bool FinderTagGame::NodeTagPtr::operator <=(const FinderTagGame::NodeTagPtr &a) const
 {
-    return (*_link) <= (*a._link);
+    return _link <= a._link;
+}
+
+const FinderTagGame::NodeTag &FinderTagGame::NodeTagPool::get(const NodeTag *parent, TagBoard::Move move) const
+{
+    return get(NodeTag(parent, move));
+}
+
+const FinderTagGame::NodeTag &FinderTagGame::NodeTagPool::get(const TagBoard &board)
+{
+    return get(NodeTag(board));
+}
+
+const FinderTagGame::NodeTag &FinderTagGame::NodeTagPool::get(NodeTag &&tag) const
+{
+    auto result = _nodesTag.emplace(tag);
+    return *result.first;
+}
+
+std::size_t FinderTagGame::NodeTagPool::poolSize() const
+{
+    return _nodesTag.size();
+}
+
+std::size_t FinderTagGame::NodeTagPool::NodeTagHash::operator()(const NodeTag &tag) const
+{
+    std::hash<TagBoard> hash;
+    return hash(tag.getTagBoard());
 }
