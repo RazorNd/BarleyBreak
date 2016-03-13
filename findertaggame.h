@@ -3,6 +3,7 @@
 
 #include <tagboard.h>
 #include <set>
+#include <unordered_set>
 #include <list>
 #include <istream>
 #include <ostream>
@@ -13,59 +14,72 @@ public:
     typedef std::list<TagBoard::Move> TagMoveList;
     typedef std::list<TagBoard> TagBoardList;
 private:
-    class NodeTag;
-    class LinkNodeTag;
-    typedef std::multiset<LinkNodeTag, std::less_equal<LinkNodeTag> > Nodes;
-    typedef std::list<NodeTag*> NodesPool;    
+    class NodeTag
+    {
+        TagBoard _board;
+        const NodeTag* _parent;
+        int _length;
+        TagBoard::Move _move;
+    public:
+        NodeTag(const TagBoard &tag);
+        NodeTag(const NodeTag* parent, TagBoard::Move move);
+
+        const NodeTag *getParent() const;
+        int getDistanceToVicktory() const;
+        TagBoard::Move getMove() const;
+        bool isCorrectMove(TagBoard::Move move) const;
+        const TagBoard &getTagBoard() const;
+        int length() const;
+
+        int operator() () const;
+        bool operator < (const NodeTag& tag) const;
+        bool operator <= (const NodeTag& tag) const;
+        bool operator == (const NodeTag& tag) const;
+    };
+    class NodeTagPool
+    {
+        class NodeTagHash
+        {
+        public:
+            std::size_t operator() (const NodeTag &tag) const;
+        };
+        typedef std::unordered_set<FinderTagGame::NodeTag, NodeTagHash> Pool;
+        mutable Pool _nodesTag;
+    public:
+        const FinderTagGame::NodeTag &get(const NodeTag *parent, TagBoard::Move move) const;
+        const FinderTagGame::NodeTag &get(const TagBoard &board);
+        const FinderTagGame::NodeTag &get(NodeTag &&tag) const;
+        std::size_t poolSize() const;
+    };
+    class NodeTagPtr
+    {
+        const FinderTagGame::NodeTag& _link;
+    public:
+        NodeTagPtr(const NodeTag &obj);
+        const FinderTagGame::NodeTag &node() const;
+
+        bool operator < (const NodeTagPtr &a) const;
+        bool operator <= (const NodeTagPtr &a) const;
+    };
+
+    typedef std::multiset<NodeTagPtr, std::less_equal<NodeTagPtr> > Nodes;
     Nodes _nodes;
-    NodesPool _pool;
+    NodeTagPool _pool;
     const NodeTag *_nodeAnswer;
 
-    void addNodeInPull(NodeTag* node);
-    NodeTag& createNode(const NodeTag* parent, TagBoard::Move move);
+    void addPointerInQueue(const NodeTag &node);
+    const NodeTag& createNode(const NodeTag &parent, TagBoard::Move move);
     void createNode(const TagBoard &tag);
     const NodeTag *makeDecisionTree();
 public:
     FinderTagGame(std::istream &input);
-    FinderTagGame(const TagBoard &initialTag);
-    ~FinderTagGame();
+    FinderTagGame(const TagBoard &initialTag);    
     TagMoveList getMoveList();    
 
     friend std::ostream &operator << (std::ostream &out, const NodeTag& node);
 };
 
-class FinderTagGame::LinkNodeTag
-{
-    FinderTagGame::NodeTag* _link;
-public:
-    LinkNodeTag(NodeTag *obj);
-    FinderTagGame::NodeTag *node() const;
-
-    bool operator < (const LinkNodeTag &a) const;
-    bool operator <= (const LinkNodeTag &a) const;
-};
-
-class FinderTagGame::NodeTag
-{
-    TagBoard _board;
-    const NodeTag* _parent;
-    int _length;
-    TagBoard::Move _move;
-public:
-    NodeTag(const TagBoard &tag);
-    NodeTag(const NodeTag* parent, TagBoard::Move move);
-
-    const NodeTag *getParent() const;
-    int getDistanceToVicktory() const;
-    TagBoard::Move getMove() const;
-    bool isCorrectMove(TagBoard::Move move) const;
-    const TagBoard &getTagBoard() const;
-
-    int operator() () const;
-    bool operator < (const NodeTag& tag) const;
-    bool operator <= (const NodeTag& tag) const;
-};
-
 std::ostream &operator << (std::ostream &out, const FinderTagGame::NodeTag& node);
+
 
 #endif // FINDERTAGGAME_H
