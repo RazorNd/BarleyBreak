@@ -37,15 +37,24 @@ public:
     int getDistanceToCell(int val, std::size_t first, std::size_t second) const;
     int getValue(std::size_t first, std::size_t second) const;
 
-    bool operator == (const TagBoard& tag);
-    bool operator != (const TagBoard& tag);
+    bool operator == (const TagBoard& tag) const;
+    bool operator != (const TagBoard& tag) const;
 
     static bool isTurnBack(Move a, Move b);
 
     friend std::ostream& operator << (std::ostream &out, const TagBoard& tag);
     friend std::istream &operator >> (std::istream &in, TagBoard& tag);
+    friend struct std::hash<TagBoard>;
 };
 
 std::ostream &operator<<(std::ostream &out, const TagBoard::Move& move);
+
+namespace std {
+template<>
+struct hash<TagBoard>
+{
+    std::size_t operator() (const TagBoard &tag) const;
+};
+}
 
 #endif // TAGBOARD_H

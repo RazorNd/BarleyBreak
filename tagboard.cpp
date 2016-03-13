@@ -182,7 +182,7 @@ int TagBoard::getValue(std::size_t first, std::size_t second) const
     return _board.at(first * _size + second);
 }
 
-bool TagBoard::operator ==(const TagBoard &tag)
+bool TagBoard::operator ==(const TagBoard &tag) const
 {
     if(_size != tag._size)
         return false;
@@ -197,7 +197,7 @@ bool TagBoard::operator ==(const TagBoard &tag)
     return true;
 }
 
-bool TagBoard::operator !=(const TagBoard &tag)
+bool TagBoard::operator !=(const TagBoard &tag) const
 {
     return !((*this) == tag);
 }
@@ -304,4 +304,14 @@ std::ostream &operator<<(std::ostream &out, const TagBoard::Move& move)
         break;
     }
     return out;
+}
+
+std::size_t std::hash<TagBoard>::operator()(const TagBoard &tag) const
+{
+    std::size_t result = 0, size = tag._size, multipler = 1;
+    for(const auto &value : tag._board) {
+        result += multipler * value;
+        multipler *= size;
+    }
+    return result;
 }
