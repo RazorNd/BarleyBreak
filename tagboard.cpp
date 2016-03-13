@@ -270,6 +270,7 @@ std::istream &operator >>(std::istream &in, TagBoard &tag)
             (*it) = val;
         }
     }
+    tag.distanceToVictory = -1;
     return in;
 }
 

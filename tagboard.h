@@ -26,7 +26,7 @@ private:
     int &Value(std::size_t first, std::size_t second);
     void swapCell(Position firstCell, Position secondCell);
 public:    
-    TagBoard() {}
+    TagBoard() : _size(0) {}
     TagBoard(std::size_t size);
     TagBoard(const TagBoard& parent, Move move);
 
