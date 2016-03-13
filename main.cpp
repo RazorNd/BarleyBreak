@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
-#include <ctime>
+#include <chrono>
 #include "tagboard.h"
 #include "findertaggame.h"
 
@@ -23,12 +23,13 @@ int main()
 
         fin >> tag;
 
-        std::time_t beginTime = std::time(0);
+        auto beginTime = std::chrono::high_resolution_clock::now();
 
         FinderTagGame finder(tag);
         FinderTagGame::TagMoveList moves = finder.getMoveList();
 
-        std::time_t endTime = std::time(0);
+        auto endTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsedTime = endTime - beginTime;
 
         for(FinderTagGame::TagMoveList::iterator it = moves.begin();
             it != moves.end(); it++)
@@ -38,7 +39,7 @@ int main()
 
         cout << "Moves count: " << moves.size() <<endl;
 
-        cout << "elapsed time: " << endTime - beginTime;
+        cout << "elapsed time: " << elapsedTime.count() << "ms" << std::endl;
     }
     catch (const std::logic_error& e)
     {
