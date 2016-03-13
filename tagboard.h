@@ -10,7 +10,7 @@
 class TagBoard
 {
 public:
-    enum Move {left, right, top, bottom};
+    enum Move {left, right, top, bottom, notCorrect};
 
 private:
     typedef std::pair<std::size_t, std::size_t> Position;

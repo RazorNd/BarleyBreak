@@ -3,7 +3,7 @@
 #include <iostream>
 
 FinderTagGame::NodeTag::NodeTag(const TagBoard &tag):
-    _parent(0), _length(0)
+    _parent(0), _length(0), _move(TagBoard::notCorrect)
 {
     _board = tag;
 }
@@ -41,6 +41,11 @@ bool FinderTagGame::NodeTag::isCorrectMove(TagBoard::Move move) const
 const TagBoard &FinderTagGame::NodeTag::getTagBoard() const
 {
     return _board;
+}
+
+int FinderTagGame::NodeTag::length() const
+{
+    return _length;
 }
 
 int FinderTagGame::NodeTag::operator()() const
@@ -89,7 +94,9 @@ void FinderTagGame::addPointerInQueue(const FinderTagGame::NodeTag &node)
 const FinderTagGame::NodeTag &FinderTagGame::createNode(const FinderTagGame::NodeTag &parent, TagBoard::Move move)
 {
     const NodeTag &node = _pool.get(&parent, move);
-    addPointerInQueue(node);
+    if(parent.length() + 1 == node.length()) {
+        addPointerInQueue(node);
+    }
     return node;
 }
 

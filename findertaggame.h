@@ -29,6 +29,7 @@ private:
         TagBoard::Move getMove() const;
         bool isCorrectMove(TagBoard::Move move) const;
         const TagBoard &getTagBoard() const;
+        int length() const;
 
         int operator() () const;
         bool operator < (const NodeTag& tag) const;

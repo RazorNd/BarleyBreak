@@ -73,6 +73,9 @@ bool TagBoard::makeMove(TagBoard::Move move)
         {
             newPos.second++;
         }
+        break;
+    case notCorrect:
+        break;
     }
     if(newPos == _emptyCellPos)
     {
@@ -112,6 +115,8 @@ bool TagBoard::isCorrectMove(TagBoard::Move move) const
             return true;
         }
         break;
+    case notCorrect:
+        return false;
     }
 
     return false;
@@ -220,6 +225,9 @@ bool TagBoard::isTurnBack(TagBoard::Move a, TagBoard::Move b)
     case bottom:
         if(b == top)
             return true;
+    case notCorrect:
+        return false;
+        break;
     }
     return false;
 }
@@ -301,6 +309,9 @@ std::ostream &operator<<(std::ostream &out, const TagBoard::Move& move)
         break;
     case TagBoard::bottom:
         out << "Move::Bottom";
+        break;
+    case TagBoard::notCorrect:
+        out << "Move::not correct";
         break;
     }
     return out;
