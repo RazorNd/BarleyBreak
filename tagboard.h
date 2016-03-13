@@ -19,6 +19,7 @@ private:
     std::size_t _size;
     Board _board;
     Position _emptyCellPos;
+    mutable int distanceToVictory = -1;
 
     void resize(std::size_t size);
     int &Value(Position cellPos);

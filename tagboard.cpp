@@ -84,6 +84,7 @@ bool TagBoard::makeMove(TagBoard::Move move)
 
     swapCell(_emptyCellPos, newPos);
     _emptyCellPos = newPos;
+    distanceToVictory = -1;
     return true;
 }
 
@@ -146,15 +147,18 @@ bool TagBoard::isSolutionExists() const
 
 int TagBoard::getDistanceToVictory() const
 {
-    int result = 0;
+    if(distanceToVictory != -1) {
+        return distanceToVictory;
+    }
+    distanceToVictory = 0;
     for(std::size_t i = 0; i < _size; i++)
     {
         for(std::size_t j = 0; j < _size; j++)
         {
-            result += getDistanceToCell(getValue(i, j), i, j);
+            distanceToVictory += getDistanceToCell(getValue(i, j), i, j);
         }
     }
-    return result;
+    return distanceToVictory;
 }
 
 int TagBoard::getDistanceToCell(int val, TagBoard::Position pos) const
@@ -179,10 +183,10 @@ int TagBoard::getDistanceToCell(int val, std::size_t first, std::size_t second) 
 
 int TagBoard::getValue(std::size_t first, std::size_t second) const
 {
-    if(first >= _size || second >= _size)
-    {
-        throw std::length_error("TagBoard::setCellValue out of range");
-    }
+//    if(first >= _size || second >= _size)
+//    {
+//        throw std::length_error("TagBoard::setCellValue out of range");
+//    }
 
     return _board.at(first * _size + second);
 }
